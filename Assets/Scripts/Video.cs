@@ -26,7 +26,7 @@ public class Video : MonoBehaviour {
 
     //DELAY
 
-    public int Delayms = 2000;
+    public int Delayms = 0;
 
     //Property to change the Delay
     public int DelaymsProp
@@ -78,7 +78,7 @@ public class Video : MonoBehaviour {
         //m_videoGO = GameObject.CreatePrimitive(PrimitiveType.Cube);//In case needed to instantiate object directly
         m_videoGO = this.gameObject;
 
-        m_videoGO.transform.position = new Vector3(0, 0.5f, 0);
+        //m_videoGO.transform.position = new Vector3(0, 0.5f, 0);
 
         //Creation of the camera texture and asign to the specific camera
         mycamTexture = new WebCamTexture();
@@ -124,7 +124,7 @@ public class Video : MonoBehaviour {
             UnityEngine.Debug.Log(" Timer Ellapsed Milliseconds " + m_delayTimer.ElapsedMilliseconds);
             UnityEngine.Debug.Log(" Delay " + Delayms);
             UnityEngine.Debug.Log(" myQ.Count " + myQ.Count());
-            if (myQ.Count() > 0)
+            if (myQ.Count() > 0) 
             {
                 texture.SetPixels32(myQ.Dequeue());
                 texture.Apply();
