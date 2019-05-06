@@ -9,7 +9,7 @@ public class Video : MonoBehaviour {
 
 
     //We create a Queue with the frames (RGBA representation of the colors
-    Queue<Color32[]> myQ = new Queue<Color32[]>();
+    Queue<Color32[]> myQ = new Queue<Color32[]>(100);
 
     //Target Texture, used to render the image from the texture of the webcam
     Texture2D texture;
@@ -18,15 +18,20 @@ public class Video : MonoBehaviour {
 
     //Texture of the Webcam
     private WebCamTexture mycamTexture;
+    //Counter of frames for the webcam texture
+    uint frcount = 0;
     //Game Object where we willplace the video.
     GameObject m_videoGO;
+    //FPS
+    int fps = 60;
+
 
     // Timer 
     private Stopwatch m_delayTimer = new Stopwatch();
 
     //DELAY
 
-    public int Delayms = 0;
+    public int Delayms = 3000;
 
     //Property to change the Delay
     public int DelaymsProp
@@ -81,13 +86,16 @@ public class Video : MonoBehaviour {
         //m_videoGO.transform.position = new Vector3(0, 0.5f, 0);
 
         //Creation of the camera texture and asign to the specific camera
-        mycamTexture = new WebCamTexture();
+        // mycamTexture = new WebCamTexture();
+        mycamTexture = new WebCamTexture(1920, 1080, fps);
+        //mycamTexture = new WebCamTexture(640, 480, 120);
+
         mycamTexture.deviceName = camName;
 
 
         //Put camera texture in the renderer of the prefab
         // Need to specify where to render the Webcam content
-        m_videoGO.GetComponent<Renderer>().material.mainTexture = mycamTexture;
+       // m_videoGO.GetComponent<Renderer>().material.mainTexture = mycamTexture;
 
         //Debug.Log("The Texture is " + m_videoGO.GetComponent<Renderer>().material.mainTexture.GetType().ToString());
         //Camera start acquiring images 
@@ -114,24 +122,107 @@ public class Video : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		 //Enque element
-        myQ.Enqueue(mycamTexture.GetPixels32());
+
+        //    //MYVERSION
+
+        //    //check if the video buffer has changed since the last frame
+        //    if (mycamTexture.didUpdateThisFrame) { 
+        //        //Enque element
+        //        myQ.Enqueue(mycamTexture.GetPixels32());
+
+        //     }
 
 
-      // When time has passed we deque from the queue and apply the frames to the new texture.
-        if (m_delayTimer.ElapsedMilliseconds >= Delayms)
+        //    // When time has passed we deque from the queue and apply the frames to the new texture.
+        //    if (m_delayTimer.ElapsedMilliseconds >= Delayms)
+        //    {
+
+        //        if (myQ.Count() > 0)
+        //        {
+        //            texture.SetPixels32(myQ.Dequeue());
+        //            texture.Apply();
+        //        }
+
+        //    }
+        //}
+
+
+
+                if (texture == null)
+                {
+                    texture = new Texture2D(mycamTexture.width, mycamTexture.height);
+                }
+
+                //    myQ.Enqueue(mycamTexture.GetPixels32());
+
+
+        if (mycamTexture.didUpdateThisFrame)
         {
-            UnityEngine.Debug.Log(" Timer Ellapsed Milliseconds " + m_delayTimer.ElapsedMilliseconds);
-            UnityEngine.Debug.Log(" Delay " + Delayms);
-            UnityEngine.Debug.Log(" myQ.Count " + myQ.Count());
-            if (myQ.Count() > 0) 
-            {
-                texture.SetPixels32(myQ.Dequeue());
-                texture.Apply();
-            }
-        
+            //Enque element
+            myQ.Enqueue(mycamTexture.GetPixels32());
+
         }
-	}
 
 
+
+        if (myQ.Count > (Delayms/1000)* fps)
+                {
+
+                    var pixels = myQ.Dequeue();
+                     texture.SetPixels32(pixels);
+                     texture.Apply();
+                     //gameObject.material.mainTexture = texture;
+                     m_videoGO.GetComponent<Renderer>().material.mainTexture = texture;
+    
+            
+                }
+            }
+
+
+
+
+
+
+
+
+
+    /* //Enque element
+     if (mycamTexture.updateCount != frcount)
+     {
+         myQ.Enqueue(mycamTexture.GetPixels32());
+         frcount = mycamTexture.updateCount;
+     }
+
+     // UnityEngine.Debug.Log("  FPS " + mycamTexture.requestedFPS);
+     //  UnityEngine.Debug.Log("  width " + mycamTexture.width);
+     //  UnityEngine.Debug.Log("  heigh " + mycamTexture.height);
+     //  UnityEngine.Debug.Log("  1.0f / Time.deltaTime " + 1.0f / Time.deltaTime);
+
+
+
+
+
+     // When time has passed we deque from the queue and apply the frames to the new texture.
+     if (m_delayTimer.ElapsedMilliseconds >= Delayms)
+     {
+         // UnityEngine.Debug.Log(" Timer Ellapsed Milliseconds " + m_delayTimer.ElapsedMilliseconds);
+         // UnityEngine.Debug.Log(" Delay " + Delayms);
+         // UnityEngine.Debug.Log(" myQ.Count " + myQ.Count());
+         if (myQ.Count() > 0)
+         {
+             texture.SetPixels32(myQ.Dequeue());
+             texture.Apply();
+         }
+
+     }
+     else {
+         UnityEngine.Debug.Log(" it did not enter" );
+
+     }
+     }
+
+ */
 }
+
+
+
