@@ -22,7 +22,7 @@ public class DelayHandler : MonoBehaviour {
     {
 
         scriptobject = GO.GetComponent<Video>();
-        scriptobject.DelaymsProp = 1000;
+        scriptobject.DelaymsProp = 400;
 
     }
 

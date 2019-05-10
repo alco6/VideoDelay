@@ -8,6 +8,8 @@ using System.Linq;
 public class Video : MonoBehaviour {
 
 
+
+
     //We create a Queue with the frames (RGBA representation of the colors
     Queue<Color32[]> myQ = new Queue<Color32[]>(100);
 
@@ -18,6 +20,10 @@ public class Video : MonoBehaviour {
 
     //Texture of the Webcam
     private WebCamTexture mycamTexture;
+
+    //Texture Plane
+    private Texture PlaneTexture; 
+
     //Counter of frames for the webcam texture
     uint frcount = 0;
     //Game Object where we willplace the video.
@@ -25,7 +31,11 @@ public class Video : MonoBehaviour {
     //FPS
     int fps = 60;
 
+    //time measure 
+    int tick, tock = 0;
 
+
+ 
     // Timer 
     private Stopwatch m_delayTimer = new Stopwatch();
 
@@ -56,6 +66,10 @@ public class Video : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+
+        //Full Screen
+        Screen.SetResolution(1920, 1080, true);
+
 
         string camName ="";
 
@@ -106,10 +120,19 @@ public class Video : MonoBehaviour {
         //We change the texture of the object to the new one. 
         m_videoGO.GetComponent<Renderer>().material.mainTexture = texture;
         //texture = (Texture2D)m_videoGO.GetComponent<Renderer>().material.mainTexture;
-
+        //resize_video();
 
         // Timer starts
         m_delayTimer.Start();
+
+        PlaneTexture = m_videoGO.GetComponent<Renderer>().material.mainTexture;
+
+        PlaneTexture = texture;
+
+
+
+
+
     }
 
 
@@ -118,10 +141,21 @@ public class Video : MonoBehaviour {
         mycamTexture.Stop();
     }
 
+    private void resize_video()
+    {
+
+        var rTr = m_videoGO.GetComponent<RectTransform>();
+        rTr.sizeDelta = new Vector2(mycamTexture.width, mycamTexture.height); 
+
+        //rTr.pivot = new Vector2(c.get<float>("pivot_x"), c.get<float>("pivot_y"));
+    }
+
+    // Update is called once per frame
+    void Update () {
 
 
-	// Update is called once per frame
-	void Update () {
+        Time.timeScale = 2.0f;
+
 
         //    //MYVERSION
 
@@ -148,35 +182,46 @@ public class Video : MonoBehaviour {
 
 
 
-                if (texture == null)
-                {
-                    texture = new Texture2D(mycamTexture.width, mycamTexture.height);
-                }
+        //if (texture == null)
+        //{
+        //    texture = new Texture2D(mycamTexture.width, mycamTexture.height);
+        //}
 
-                //    myQ.Enqueue(mycamTexture.GetPixels32());
-
-
-        if (mycamTexture.didUpdateThisFrame)
-        {
-            //Enque element
-            myQ.Enqueue(mycamTexture.GetPixels32());
-
-        }
+        //    myQ.Enqueue(mycamTexture.GetPixels32());
 
 
 
-        if (myQ.Count > (Delayms/1000)* fps)
-                {
 
-                    var pixels = myQ.Dequeue();
-                     texture.SetPixels32(pixels);
-                     texture.Apply();
-                     //gameObject.material.mainTexture = texture;
-                     m_videoGO.GetComponent<Renderer>().material.mainTexture = texture;
-    
-            
-                }
-            }
+
+
+
+        ///  if (mycamTexture.didUpdateThisFrame)
+        ///  {
+        //Enque element
+        myQ.Enqueue(mycamTexture.GetPixels32());
+                //tick = Environment.TickCount & Int32.MaxValue;
+
+          ///  }
+
+
+            if (myQ.Count > (Delayms * fps / 1000))
+            {
+                         //var pixels = myQ.Dequeue();
+                         texture.SetPixels32(myQ.Dequeue());
+                         texture.Apply();
+                         //gameObject.material.mainTexture = texture;
+                         // m_videoGO.GetComponent<Renderer>().material.mainTexture = texture;
+                         
+
+                        //tock = Environment.TickCount & Int32.MaxValue;
+                        //UnityEngine.Debug.Log("Tick tock" + (tock - tick));
+
+           }
+
+       
+
+
+    }
 
 
 
